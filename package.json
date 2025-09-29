@@ -1,0 +1,72 @@
+{
+  "name": "vector-seo-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An AI-powered SEO Audit Tool by Abhijeet Shinde",
+  "author": "Abhijeet Shinde",
+  "main": "main.js",
+  "scripts": {
+    "//--- PRODUCTION ---//": "",
+    "start": "cross-env NODE_ENV=production electron .",
+    "build": "electron-builder",
+    "//--- DEVELOPMENT ---//": "",
+    "predev": "npm run build --workspace=packages/backend",
+    "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
+    "dev:frontend": "npm run dev --workspace=packages/frontend"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "^31.0.2",
+    "electron-builder": "^24.13.3",
+    "electron-reloader": "^1.2.3"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "boxen": "^7.1.1",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "electron-updater": "^6.6.2",
+    "figlet": "^1.7.0",
+    "handlebars": "^4.7.8",
+    "nodemailer": "^6.9.14",
+    "ora": "^8.0.1",
+    "puppeteer": "^22.15.0",
+    "rimraf": "^5.0.7"
+  },
+  "build": {
+    "appId": "com.vectorseo.app",
+    "productName": "VectorSEO",
+    "files": [
+      "main.js",
+      "preload.js",
+      "packages/frontend/**/*",
+      "packages/backend/dist/**/*",
+      "packages/backend/package.json"
+    ],
+    "asarUnpack": [
+      "packages/backend/dist/**/*",
+      "**/node_modules/puppeteer/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "publish": {
+    "provider": "github",
+    "owner": "com-Abhijeet",
+    "repo": ""
+    }
+  }
+}

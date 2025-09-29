@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SEO Audit Report for {{siteReport.url}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --brand-color: #2563eb;
+        --text-dark: #1e293b;
+        --text-medium: #475569;
+        --text-light: #64748b;
+        --border-color: #e2e8f0;
+        --background-light: #f8fafc; /* For contrasting elements */
+        --background-white: #ffffff;
+        --status-good: #16a34a;
+        --status-bad: #dc2626;
+        --radius: 8px;
+        --status-warn: #f59e0b; /* This is your yellow */
+        --status-orange: #f97316; /* Add this for orange */
+        --status-bad: #dc2626;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        color: var(--text-medium);
+        background-color: var(--background-light); /* A light gray background helps the white page stand out slightly */
+        font-size: 12px;
+        -webkit-print-color-adjust: exact;
+        margin: 0;
+    }
+
+    .page {
+        width: 8.5in;
+        min-height: 100vh;
+
+        padding: 0.5in;
+        margin: 0 auto; /* No vertical margin for a seamless look */
+        box-sizing: border-box;
+        page-break-after: always;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--background-white);
+        border-bottom: 1px solid var(--border-color); /* Add border for page separation on screen */
+    }
+
+    .page:last-child {
+        page-break-after: avoid;
+        border-bottom: none;
+    }
+
+    /* --- typography --- */
+    h1, h2, h3, h4 { color: var(--text-dark); margin: 0; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    h2 { font-size: 22px; font-weight: 600; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+    h3 { font-size: 18px; font-weight: 600; }
+    p { margin: 0 0 10px; }
+
+    /* --- Header & Footer --- */
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        border-bottom: 3px solid var(--brand-color);
+    }
+    .logo { max-width: 160px; }
+    .agency-details { text-align: right; font-size: 10px; line-height: 1.5; color: var(--text-light); }
+    .page-header {
+        display: flex; justify-content: space-between; align-items: center;
+        padding-bottom: 15px; margin-bottom: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .header-title { text-align: right; font-size: 11px; color: var(--text-light); }
+    .content-spacer { flex-grow: 1; }
+    .footer {
+        text-align: center; font-size: 10px; color: #94a3b8;
+        padding-top: 15px; margin-top: 30px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* --- Card Styles (No Shadow) --- */
+    .card {
+        background-color: var(--background-white);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 24px;
+        page-break-inside: avoid;
+    }
+    .card-header {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 16px;
+    }
+    .card-header .icon { width: 24px; height: 24px; }
+    .card-header h3 { font-size: 16px; }
+
+    /* --- Page 1: Summary --- */
+    .summary-grid { display: grid; grid-template-columns: 250px 1fr; gap: 30px; margin-top: 25px; }
+    .score-card { text-align: center; }
+    .score-text { font-size: 64px; font-weight: 700; color: var(--brand-color); }
+    .category-scores { margin-top: 30px; }
+    .score-bar-container { margin-bottom: 15px; }
+    .score-bar-label { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+    .score-bar-background { background-color: #f1f5f9; height: 14px; border-radius: 7px; overflow: hidden; }
+    .score-bar-foreground { height: 100%; border-radius: 7px; }
+
+    /* --- Page 2: Key Findings --- */
+    .findings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .finding-card {
+        display: flex; flex-direction: column;
+    }
+    .finding-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+    .finding-icon {
+        width: 40px; height: 40px; flex-shrink: 0;
+        background-color: var(--background-light);
+        border-radius: 50%;
+        display: grid; place-items: center;
+    }
+    .finding-icon img { width: 24px; height: 24px; }
+    .finding-title-group { flex-grow: 1; }
+    .finding-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .impact { font-weight: 600; padding: 3px 10px; border-radius: 12px; color: white; font-size: 10px; text-transform: uppercase; }
+    .impact-Critical { background-color: var(--status-bad); }
+    .impact-High { background-color: #f97316; }
+    .impact-Medium { background-color: var(--status-warn); }
+    .impact-Low { background-color: #3b82f6; }
+    .impact-Good { background-color: var(--status-good); }
+    .finding-content p { font-size: 11px; margin: 0 0 10px; color: var(--text-light); }
+    .finding-content strong { color: var(--text-medium); }
+
+    /* --- Page 3 & 6: Details List --- */
+    .details-list .detail-item-row {
+        display: flex; align-items: center; gap: 15px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .details-list .detail-item-row:last-child { border-bottom: none; }
+    .detail-icon { width: 32px; height: 32px; flex-shrink: 0; padding: 4px; background-color: #eef2ff; border-radius: 50%; }
+    .detail-title { font-weight: 600; font-size: 13px; color: var(--text-dark); margin-bottom: 2px; }
+    .detail-description { font-size: 11px; color: var(--text-light); }
+    .detail-status { margin-left: auto; text-align: right; min-width: 120px; }
+    .status-badge { padding: 4px 12px; border-radius: 14px; color: white; font-size: 11px; font-weight: 600; }
+    .badge-good { background-color: var(--status-good); }
+    .badge-warn { background-color: var(--status-warn); }
+    .badge-bad { background-color: var(--status-bad); }
+    .status-text { font-size: 14px; font-weight: 700; }
+    .status-text.good { color: var(--status-good); }
+    .status-text.warn { color: var(--status-warn); }
+    .status-text.bad { color: var(--status-bad); }
+
+    /* --- Page 4: Strategic Suggestions --- */
+    .suggestions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    .suggestion-card { background-color: var(--background-light); padding: 15px; border-radius: var(--radius); margin-bottom: 10px; }
+    .keyword-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .keyword-item { background-color: #eef2ff; color: var(--brand-color); padding: 5px 12px; border-radius: 14px; font-size: 11px; font-weight: 500; }
+    .quick-win { display: flex; align-items: center; justify-content: space-between; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 12px; }
+    .quick-win-title { font-weight: 600; color: var(--text-dark); }
+    .quick-win-tags { display: flex; gap: 10px; }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        <div class="report-header">
+            <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="agency-details">
+                <strong>Abhijeet Shinde</strong><br>
+                abhijeetshinde.example<br>
+                abhijeetshinde@example.com
+            </div>
+        </div>
+        
+        <h1>Confidential SEO & Performance Audit</h1>
+        <p><strong>PREPARED FOR:</strong> {{siteReport.url}} | <strong>DATE:</strong> {{auditDate}}</p>
+
+        <div class="summary-grid">
+            <div class="card score-card">
+                <h3>Overall Score</h3>
+                <div style="position: relative; width: 180px; height: 180px; margin: 10px auto;">
+                    <canvas id="seoScoreChart"></canvas>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <span class="score-text">{{scores.overallScore}}</span><br>
+                        <span style="font-size: 14px; color: var(--text-light);">/ 100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>AI-Powered Executive Summary</h3>
+                <p style="font-size: 13px; color: var(--text-light);">{{aiSummary.executiveSummary}}</p>
+            </div>
+        </div>
+
+        <div class="card category-scores">
+            <h3>Category Performance</h3>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Metadata</span><span>{{scores.categoryScores.metadata}} / 100</span></div>
+                <div class="score-bar-background"><div class="score-bar-foreground" style="width: {{scores.categoryScores.metadata}}%; background-color: #3b82f6;"></div></div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Content & Structure</span><span>{{scores.categoryScores.content}} / 100</span></div>
+                <div class="score-bar-background"><div class="score-bar-foreground" style="width: {{scores.categoryScores.content}}%; background-color: #8b5cf6;"></div></div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Technical SEO</span><span>{{scores.categoryScores.technical}} / 100</span></div>
+                <div class="score-bar-background"><div class="score-bar-foreground" style="width: {{scores.categoryScores.technical}}%; background-color: #10b981;"></div></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 30px;">
+            <h3>Crawl Statistics</h3>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                <div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">{{siteReport.totalPgsCrawled}}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Pages Crawled</div>
+                </div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">{{siteReport.avgWordCount}}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Avg. Word Count</div>
+                </div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">{{siteReport.images.totalImages}}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Total Images</div>
+                </div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">{{siteReport.links.avgInternalLinks}}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Avg. Internal Links</div>
+                </div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">{{siteReport.links.avgExternalLinks}}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Avg. External Links</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>This is an automated analysis. All findings should be manually verified. | Page 1</p></div>
+    </div>
+    
+    {{#if aiSummary.keyFindings.length}}
+    <div class="page">
+        <div class="page-header">
+            <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="header-title"><strong>SEO Audit Report</strong><br>Prepared for {{siteReport.url}}</div>
+        </div>
+        <h2>Key Site-Wide Findings</h2>
+        <p style="margin-top: -15px; margin-bottom: 20px;">The most critical issues and opportunities discovered during the audit are prioritized below.</p>
+        
+        <div class="findings-grid">
+            {{#each aiSummary.keyFindings}}
+            <div class="card finding-card">
+                <div class="finding-header">
+                    <div class="finding-icon">
+                        {{#ifCond this.severity '===' 'Critical'}}<img src="data:image/png;base64,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">{{/ifCond}}
+                        {{#ifCond this.severity '===' 'High'}}<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIABAMAAAAGVsnJAAAACXBIWXMAAAAHAAAABwG4IbDbAAAAGFBMVEVHcEz/QUH/QUH/QUH/////qKj/V1f/QUF4og/+AAAABHRSTlMASYjIqj2IFAAACbBJREFUeNrtnUFSw7gWRa/sgacCBpoKGHhqkoE20PV38HsFXd1Ty6ribb+rmkqJAE7sAJHzrs4OfLi6ejKxjSKYu/un/X4vb6T9fvf0eGdBgbl/2ssM+6dH5RbunoOcIe3uoJT7Z1nIXmEQ7p5lFbtHXes+yGqSmhiYZ7mQnVVz+ZQK8uVTKsiXz6tgrvrW1yFuERPkx0gWN8eD/Cg73BZNkB8medI/f+aFZPXPkyxJ+c/zqCD+2peB6eVXmayC5a+4CBq5An7D9SdX4YWl/uYNKLh+hYNxL1dkUnD9ygz0ItQGehFqA70ItQEnQm3gQQrxwnr92QDp9WcGkvPPPJ70+jN+6+d/5fcHghQnkQxA80ykG0DmhbQAM750AXIWYS4A0iJ0siEirk4rM5DMxEY2huUsgMxUZAKgrYFGNojnOALMk0h3wEwkXQAZX2oEJhuJnWyWSLoAMp5zB8ikgiMQyc0RIxvHFjgDMJ0JWtk8A8kIMI/lHAEykbQBM5azATNTgRmQoweD3AiJZAac54WzATPJcm6BmUgagIzlDEAmkm6BGcs5A2UiaQAynjMAmYk0ABnPGYDMRBqAjOcMQGYiDUDGFgiAxlnAiHBHwIlQR8CIcEfAiXBHQGZguTXUyk0zcNwKnidtcQj66485/tleBPqiAsrPw0aKCii/E7qyAsrvhFJUQPkIdGUFlK/BoEFAKrsHlhcgHpfS6xAQcSFGigooX4NtWQHlazBoEZAurcCiAsrXoNMjIOISpKiA8jXYaRIwYD29JgETVmOkqIDya6DTJWDEWoIuAWn9EFBUQPlRwGkTELGOoE1AWrsCigoovwacPgERaxB9AgQraDUKGLAcp1FAxHJEowDBYhqdAgYsxekUELGUoFOALF8BSgV4LMNpFRCxjKBVQFq6AooKKL8GOr0CRiwh6BWQsAAjegWIxXlazQIGnKfXLGDCeUSzAMFZGt0CPM7hdAuIOEfQLSDhDEYKCyi9EbbaBQw4Ta9dQMRpgnYBcm4TVC/A4xSdfgFj8QqQ17/nKP9ItVyFf+aQa3C6AgjwJyuAgPFkBRAwYR6hgLQCMp6zAjLjqQrgLoEgFCTyCpi/J9AKCQO+xgkJcb4CqEvACA2kHZjxnGNQZpwfg5hHISGCtAMzdm4MYh6FnBARZzqQugWFCtIOzNiSHfj/Of4s0IIFOvD1jzn+V3IW7LkETCU7cAsCZKYDCRIw04ItmwCPYzo2ASOOcWwdEHFMYEtAwjHCJkBwRMMnwH/YBCg6YH4Y7vgSMOI9PZ+ACe8JfAIS3iN8HSBAxghfAsQi0zIKGJDpGAWMyDjGDojI9IwJmJAJjALS0SZAKEBsqZ9GbE9Ay5mAAQc6TgEjDjhOAREHes4OmHAgcCYg4YBwCpA8BpAKsHkMYOyAfF+05UxAHgQ6TgF5EHCsAiLe6Dk7IA8CgTUBCW8IqwDJYwCpAFtEgGxNQMObAJ/nID4BeRLqOAXkScjxdkAsIuB1awJ6TgF5FAycAvIoKLwdIEXmoNcqYDsCLICGWYAvIUA2JqBlTsAAoGMWMFYBgGPugFhgEpbXKmA7AiYAgVlAKiFANiZAmBMgVQAMtwBbQIBsS0DDnQBfBdALaLk7YEDLnYABHbeAsQrouDtghONOQKwCqgDuDojouRMwVQH0AgJpB2QB3AlIVUAVIFenJmBTAoRbgNQECHcHSF0CVUAVUDugJqAKqAJqB9QEVAH1MHQ16nG4HofrHaF6T7AmoArYiID6v8Ferk7973AVsCEB9TdCTq5O/ZVYFbAhAfW3wp1cnfpr8S0JqA9M0Ato5OrUp8aqgO0IsPXZYfZnh+vj81VAfYcIcwek+hodwDELiFUACpyH69vkNiSgvlCxvlO0vlOU+7W67AIAAPQCAm8HpPp6/SIC6hcmNiag4+2AsX5mp35oqX5rrH5rrH5ur35wsWcVMOENx9oBsX52t354+T8aVgEebxjWDrD18/t4I3AKSDjQcwqYcMBxdkDEgY4zASMOtJwCBhxoOAV4HDCcHYBMYExAQqZnFDAh4xgFRGQ6xg4YkWkZE+CRMYwCLJBhFID3BL4OSHiP40tAxHs6PgEj3tPyCRjwnoavAyyO4EsAjglsAhKOcWwCIo7p2DpgxDEtWwI8jjFsAiw+EMgE4CM9VwdM+IjjSsCIj7RcAgZ8xHAJsPgEVwfgMz1TAiZ8xjEJiPhMyyRgwGcMUwdYfAFTAvAVPY+ACV/R8QgY8RUNTwd4fIXhSYDFlwQWAQlf41gERHxNy9IBA77GsCTAYgYWAZij5xAwYY6OowNGzNFwJMBjFg4BmKdnEDBhno6hA0bM0zAkwOMEDAJwil6/gAmn6PR3wIhTNPoTYHGSoF1AwmmcdgERp2m1d8CA0xjtCbA4Q9AtIOEcnW4BI87R6O4Aj7PoTgDO4zQLiDhPq1nAgPMYzR1gsYCgNwETltDpFTBiCY1eAR6LCFo7IGEZTmsCIpbRaBXgsZCgU0DCUpzODohYSqMzAR6L0SkAy3EaBUQsp9XYAQNWoDEBWIPTJyBiDY0+AR6rCNo6IGEdTlsCItbRaBPgsZKgS0DCWjpdHTBiLUZXAixW02sSMGE9rSYBA9ZjNHUALsHpSUDEJTR6BHhcRNAiIOEyWi0dMOAyjJYEWFyI0yEg4lIaHQI8LiZo6ICEy2k1JGDE5RgNAvAd3O0LiPgO5vY7wOJb9LeegAnfo7l1AR7fJNy2gITMZnbCv2cpeAyY5xfWwBzy4ySLb+Pkhon4PkZuGAtQRyAC3BGwAHUEIsAdAYsfopebZMJP0chN4gHqCEwAdwQ8QB2BCT+JURAAslkgAtwRsAB1BCLAHQELUEcgAtQRSBa/QCs3w4BfIciNkPA7NKQzUKZXMAQz9KDFr+FIt8BM4NwCMy3pFpjpORswY0gbMPMgm+YFv05QMAPqnQc9roAjHQEygXMEyDSkCyDjSBdAJnDuAJmGdAFkHhSMQMrOBBOui1FwBlB1MB5wdRzpDpjpOQsgYxSMwEqmAY9CPCiYABTUwARQG0goiQnbKUDSIrQAtQGP4rSbmYAJN8MXgNpAxEboiw0A1AYmgNrABFAbmABqAxM2x0OB66c1sAOoDbxgozQFrp/QgMeGMaHs+b88ppdfZbLYOg+kyz/TBM7lnzE9afwzDwXir3sZ5PZnDcEON4cJJKt/nvsfUpAecaOY5x9JvwXAqSBfPqWCfPm0CnYWOjD34ZLqs1DE3coY7B6hjvvFDvaPFhldOQhyhrS7g2rM/dNeZtg/3VlQYO7un573+yD/kfb73dNjoWv/F24aZL+Ekl0JAAAAAElFTkSuQmCC">{{/ifCond}}
+                        {{#ifCond this.severity '===' 'Medium'}}<img src="data:image/png;base64,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">{{/ifCond}}
+                        {{#ifCond this.severity '===' 'Low'}}<img src="data:image/png;base64,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">{{/ifCond}}
+                        {{#ifCond this.severity '===' 'Good'}}<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAMAAADDpiTIAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAJFBMVEVHcEwAugAAugAAugAAugAAugD////W9Nak56Rq12o0yDQAugDWhf72AAAABnRSTlMAHUd1p9NcszfdAAANfklEQVR42uzbCXLbMBBE0WAZUiLuf99UOXHJibfYZARAfP8I6mFPT5P6cR5SyrmUUmutEREt2jPRWkRErbWWUnJO6QceSPZSakT7IhG1FKMwMb+Eb7t5GgRzMJn0NdrBRDUGE5BeSX/8GPiVp9d+/xTwgrHIJdqdYQWnFf9GVLGgv/idCU7Qb+e3QZAJ7k6u0YYiKiO4G38/+oyA8Y9CmIH/SXrOfGbgjOTaJiEKtfqq3x+ZsLP19yeqVXAMr9W3Cs5DKm1q2MBhm58NePhnxWH4DVJtH+IoeGhytAcjjMC+3C8MkP8TtMSSnzxIfiNAfuXQnJT2Gy4g+j08LoKvyO8oVPu01lRDSl9pkPyigOhvBCx/UYD7iwLc3x6YmMT9XxDZ439yqvDHBE6D8PcmNXn8/8T7AbcfE3gwMpE/Jtv+zgHb3zng9lcMqv7OSyTpTxaU/mRB9m8NsH9rQPq3BnS/mmHlj1LI+lcKuf4EAdefe5D+JsD61wi4/kVB+psA8d8xIP6JgvQ3AeK/Y4D+JoD+JoD+JsD5bwLorxKivwmgvwmgvwmgvwmgvwmgvwmgvwmgv0ZI/2sC6G8C6G8CjiFRohOR6X9yku//fCfYGfp3JXz/7/8CCiCVIP1NgAJAHeAAdAw6AB2DDkDHoAPQMegAcAo4AARBAVAQFADEAAFADBAANIIaQEFQA6QPEgAFQQFADBAAxAABQAzQAGgDBAAxwAKwBFyAbkELwBJwAboFLQBLwAKwBHwEZAlYAJaABWAJqIAsAQvAErAALAELYD7CS2AvhnXAcqAEKAdKgHKgBCgHSoByoAQoB0qAciADYAESoBzoBHQKMgAW4AR0CjIAFsAAWMA7+PUeAQbAAnRA2iAGwAIYAAtgAOOybdcntq0dTWEAY7NdL+vygvVyPXYKEgMYmOu6vMF6OXAGig5gVLbL8i7rtR0FA5hK/uNHoHgLMCKX5VPWrR1BMIDx2NblXzjGBDIDmOzxv7G2AwgfAg3Guty4xxrIDGA6+7+xtd1UBjCV/sdPQPJfgGHYlht3m4CqBR5I/x4TkNyAY3BdvsPa9lK0wBPqf+PS9iICTqX/8Y1QdgPOqP+NtpMQAQep/3otgeQGHEf/HpdAFQH769/VAtyA3ev/vhZQRMDO+ne2gCoCjqB/x0Mg2QBDvP7p1gUUEbCz/r1joBaw6+uf/jsgKwF669+5CrABeurfPwQ0EbBr/d8/BGQbYGb9l5/tnQtu4zgQREmRXH76/vfdzCyQRjAIsB7KKnX03hFU5f5Uy3a3TSohQET9Hdsl0wGU8b/eAIUYWKi/fg2wSgdQ6q83gGU6gFJ/vQEKO4Dy/KM3QKUDKPXXG8AyHUB2/tnH9jnoAEr99Qao3AEE8b8+CXS4BAv0198CnIMOINBffg10KjGgIP6XLwFOYwkMpr9jp5BZAoPqP+wUCiOAIP6VjwBOZQkMpb9jJ8ESGFP/YSdxMAII9JfvAE5hCRScf+QxoNNYAgX66wuAkxkBBOcf+QTgHCyBQv31BcAKI0A4/aedSCMFEJx/9BOgwwgQTf9lp3KQAgjif/kA4BRGgFD6TzuZygjwSP0dYqCTGDH1t8wI8Gj9rRADnUGPqr9VZkBB/COf/53GDChY//X6O8RAEfTvy95FZgbcY8bW3woz4KP1t8oMeHv97Z00ZsANRlj9HXLAe+s/7M1kloBH628HS8Cj9bfCEiCMf/X6W2UJiBz/79NYAv6CFV5/hyXg2fpbZgmIfP7b52AJiHz+26dggEfrb4UtMPL5Z5/KFvho/a1dtQWuOccYfYwx50L/7+l2LVdsgWv0f77S50J/pf5OfrcB1jepeZ+L+P8PhikMcNjbmP2f7xkL/YX6exBQZJnJWOgv09/3wHJp8f/K4PyjehZugKocmfpC/734fz8IaNqSOdHfH4PGAOJHNjj/KPT3JEj+yAb6L1ORUtI/ss75R4bnQMqWOdBfRU5Zp78z+PanzADHLSKTwflPw5GOezyzwflHwnF2EPj3ixD6Kyip3CUzn3z7U2oA/dA0Of8oDFDvE5pO9BdkwfVGXXNx/pMaQP/YFuefyw3QbhWbLPRXGkDfN/vi/Hcp7UwDnLIYcf6TGkAfnHfOP1ID6Denjv6XGuB+o1Pn/HMh6TYjgDPQX9oC9MVzcP6RVgD90xvo/0gDOJPzn9QA+uc3Of880gDORP9HGsBZnP8eaQBncf55pAGchf6PNICzOP892wB9ob8yCdTHKH1x/n1iEOR0zn+hbwH7dL79JzWAfpTunP8eaQBnoL/UAPqnOTj/vdMA9f7tdHD+k34xRJ+nTc4/UgPoK+pE/wgGsDcGaej/LgOUGA91cv6V/j6APlVZnP+kBtDX1cX55y0GOMIEqwv9lb8Spo9W+uL89wYD5DjDVV+c/5S/FKp/vB39zzdAipSvd84/2l8L1zsA/U//v4AWKmMbnP+0BtA7AP1P/suYGuw1+0H8f64BikVzAPpL/zdQ74CJ/mca4Ij3sv3k/HfiX8dmC+gAzn/Sfw/XJ24L/U8zQLKQDuD8dwbpFy2mAzj/nZIDbQQB4lB4cf7ZpqZfFAvqAPTfpbgBIjqAb3+eY4Aj6m9vdc5/+zGA74ERHcD5Z4+cfmNhHTDQf4v0Hy2wA/j2594WuLsH6k+DnH+2tkBfA8I6AP13lgBfA8I6YKL/zhKwvwboT4Ocf7aWgA8suAPQf2cJ2F8D9Ichzn8bS4CvAYEdgP4bM6CvAYEdwPlnxwDZojugL/R/mZw+sW30x2HOf6+SnGbxHcD570Vacqo5YU+DnH9eoyan2E9wAPq/xJGcbD/BAYPz34szoGM/wgF8++cVUjp5CNAfhtD/xRHAKYYDBPqrYyDnMBwgiH/lM6Bj17E6+pue9JWGA56lf0tfKXYhC/3llPSVw3CA7vyjHwFSNhzwJP0tJ9kQcHpmz/lnZwTwIQAHCPRXjwDOYThAoL98BHAMBwjOPyrSn1S7moH++kOAUwwHCOJ/9QjgZMMBAv3lS6DTcIBKf/0S+HUI4DQoiH9VI4BzGA4Q6C9fAh37hNOgQH/VEuhUHKDTX98BfBE0DkOC84+uAziGAwT6y5dAp+IAgf7yDuAUwwGC8486BnSyqZjoL+wATsMBgvOPvAM4xXCAQH91B3Cy6RjE/7IO4FQcMMwe1wGcYkIG+qtSIMeUDPQX3QGcako68b+mAziHSenor+kATjMpHf0F7wLJx0BndeJ/RQjgZNOy0F8SAjjNtCz0V3QAp5iYxflHMQI6pmahvyAEcKqpmZx/rg8BnGxyJvpfPwI6zeRM9BeMgJ4G6hnE/5ePgI6ZnsH6JxgBfRPUM9D/4hTQyXYHBvoLRkDfBPV01v+Td8BgJcA6+gsKgG+Cejrr39k7YIRN0Fkd/U/cAQOWgNVZ/wUFwDdBOQv9T9sBQ5YAW+gvKABeAvQs9L+yADh2FyZvf+6TUtwSYBP9BQUgZbsNE/03SSl0CbBB/L9bAGKXABvov0NK0UuADfTfKgDhS4ANzj87BSB+CbCO/lcVAMfuROf8s1MA4pcA6+i/XQACXgSc1dF/5woQvwSsTvy/UQDilwBb6H9NAXAOuxUL/V/kSJtUuxWL+P8latol271Y6P8KOW1T7F5M9L9iAnRys3sx0X9nAoxfAmxy/tkoAHFXQWeg/0YBiLsKOoPzz8YKGHcVdAb6b6yAcVdBZxD/b6yAcedAp6P/xgQYdw50OvrvTIDxm8DqxP87DSB+E1gd/TcaQNg80Fnov9EA4oYBziL+3YgA4oYBzkL/nQgg/iZgC/0dp+Xk/OgmYBP9dxpA/CZgk/PPRgOIGwY4E/13IoD4TcAG55+dBhC/CdhA/40GEHcTcAb670RA8ccAG5x/NgaAuDcBp6P/zg0gfhOwTvzvA8ATm4B19N9oAPF3QVsT9c2OdAGV5/zIBuA0nvQTN0An86gfOQA4B8/6kQOAU3jaN04AGAQZAN9OZhC860tADIIMAIwB6M8YwABAHkQCxCDIAMggSAJIIsgAiAPQn2WQBJhlkAUQB7AAsgyyAOIA9GcVIAAgEGIBpAagPw5AfxyA/kSCBIA4AP1xAPrjAPTHAeiPA9AfB6A/eQD64wDyHxyA/jgA/bkOc///3xy8IyTVn7fEeP/rC3xx9EdQX9Oft8V5/59QkPgHB7D+EQigP8sA4z8OQH8GAcZ/BgHGf3LhULQjhSeTCZ2S/jEIUP4ZBNj+2QfZ/j7hOMT2Rxug/LMNMP2zDTD9Mwsy/TELMv2RDDP9MQsy/bEQ8vGnCPDxZxLg8ksRYPcnE+DjTzDIx58+wPDHMEj1pw/ckFbSJ/QBmj8WoPkzCtD8H0hpNH8sQPNPLATIjwV+PIXZ71sK8mMB5GccRH5yARa/R3NUYh8C4h9ERf7XyYXWTyeg9VMGOPixFvLhfza5NDo/0wBjPx4IQqX0P7gVVEr/WynVbkxD/feTj3rXvo/6V3HcrRk0pr6ryaXS9ikETd/1+ehrOXSVoNH1n2uCyif/fjNBs0to9PzHuqDxwQ9APtwGZ0pPw49mA/fBnvJIH5j82wi1tRdlb/W38Cj/o6xwlFLqB+0Ds+ZyW/ugflBKOR4l+79K9B7Ff3aFoQAAAABJRU5ErkJggg==">{{/ifCond}}
+                    </div>
+                    <div class="finding-title-group">
+                        <div class="finding-title">{{this.title}}</div>
+                        <span class="impact impact-{{this.severity}}">{{this.severity}}</span>
+                    </div>
+                </div>
+                <div class="finding-content">
+                    <p><strong>Description:</strong> {{this.description}}</p>
+                    <p><strong>Recommendation:</strong> {{this.recommendation}}</p>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>Generated by Abhijeet Shinde | Page 2</p></div>
+    </div>
+    {{/if}}
+
+    <div class="page">
+        <div class="page-header">
+             <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="header-title"><strong>SEO Audit Report</strong><br>Prepared for {{siteReport.url}}</div>
+        </div>
+        <h2>On-Page Details</h2>
+        
+        <div class="card">
+            <div class="details-list">
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE3IDRIMTlhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAyaC0xYy0xLjEgMC0yLS45LTMtMnoiLz48cGF0aCBkPSJNNyA0SDVhMiAyIDAgMCAwLTIgMnYxMGEyIDIgMCAwIDAgMiAyaDFjMS4xIDAgMi0uOSAzLTJ6Ii8+PC9zdmc+">
+                    <div class="detail-content">
+                        <div class="detail-title">Title Tag Length</div>
+                        <div class="detail-description">Optimal length is 30-60 characters for visibility in search results.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond (add siteReport.overview.pagesWithShortTitles.length siteReport.overview.pagesWithLongTitles.length) '===' 0}}
+                            <span class="status-badge badge-good">OK</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">{{add siteReport.overview.pagesWithShortTitles.length siteReport.overview.pagesWithLongTitles.length}} Issues</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                 <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTMgN2gtNiIvPjxwYXRoIGQ9Ik0yMSAxMkgzIi8+PHBhdGggZD0iTTIxIDE4SDMiLz48cGF0aCBkPSJNMTEgMTJoNiIvPjwvc3ZnPg==">
+                    <div class="detail-content">
+                        <div class="detail-title">Meta Descriptions</div>
+                        <div class="detail-description">This summary affects click-through rates from search results.</div>
+                    </div>
+                    <div class="detail-status">
+                         {{#ifCond siteReport.overview.pagesWithMissingDescriptions.length '===' 0}}
+                            <span class="status-badge badge-good">OK</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">{{siteReport.overview.pagesWithMissingDescriptions.length}} Missing</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNNiAzbDYgNmw2LTZNLTYgMThsNi02bDgtNiIvPjwvc3ZnPg==">
+                    <div class="detail-content">
+                        <div class="detail-title">H1 Heading Structure</div>
+                        <div class="detail-description">Each page should have exactly one H1 tag to define its main topic.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond (add siteReport.overview.pagesWithMissingH1s.length siteReport.overview.pagesWithMultipleH1s.length) '===' 0}}
+                            <span class="status-badge badge-good">OK</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">{{add siteReport.overview.pagesWithMissingH1s.length siteReport.overview.pagesWithMultipleH1s.length}} Issues</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHg9IjMiIHk9IjMiIHJ4PSIyIiByeT0iMiIvPjxjaXJjbGUgY3g9IjguNSIgY3k9IjguNSIgcj0iMS41Ii8+PHBhdGggZD0ibTE5IDExLjVsLTYuMDMgNi4wM2ExIDEgMCAwIDEtMS40MSAwbC0xLjA0LTEuMDRhMSAxIDAgMCAwLTEuNDEgMGwtNC4wMiA0LjAyIi8+PC9zdmc+">
+                    <div class="detail-content">
+                        <div class="detail-title">Image Alt Text</div>
+                        <div class="detail-description">Alt text is vital for accessibility and image SEO.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond siteReport.images.totalPagesWithMissingAlts.length '===' 0}}
+                            <span class="status-badge badge-good">OK</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">{{siteReport.images.totalPagesWithMissingAlts.length}} Pages with Issues</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIxNiAxOCAxOSAxNSAxNiAxMiIvPjxwb2x5bGluZSBwb2lbnRzPSIgOCA2IDUgOSA4IDgiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">Structured Data (Schema)</div>
+                        <div class="detail-description">Schema markup helps search engines understand your content's context.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond siteReport.structuredData.pagesWithSchema '>' 0}}
+                            <span class="status-badge badge-good">{{siteReport.structuredData.pagesWithSchema}} / {{siteReport.totalPgsCrawled}} Pages</span>
+                        {{else}}
+                            <span class="status-badge badge-warn">Not Found</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>Generated by Abhijeet Shinde | Page 3</p></div>
+    </div>
+    
+    <div class="page">
+         <div class="page-header">
+             <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="header-title"><strong>SEO Audit Report</strong><br>Prepared for {{siteReport.url}}</div>
+        </div>
+        <h2>Strategic Suggestions</h2>
+        
+        <div class="suggestions-grid">
+            <div class="card">
+                <div class="card-header">
+                    <img class="icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTQgN2gxNm0tMTYgNWgxNm0tMTYgNWg4Ii8+PC9zdmc+">
+                    <h3>Suggested Content Ideas</h3>
+                </div>
+                {{#each aiSummary.strategicSuggestions.suggestedContentTypes}}
+                <div class="suggestion-card">
+                    <strong>{{this.title}}</strong><br>
+                    <small style="color: var(--text-light);">{{this.description}}</small>
+                </div>
+                {{/each}}
+            </div>
+            <div class="card">
+                <div class="card-header">
+                     <img class="icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSI4Ii8+PHBhdGggZD0ibTIxIDIxLTEuMDk3LTEuMDk3Ii8+PC9zdmc+">
+                    <h3>Target Keywords</h3>
+                </div>
+                <ul class="keyword-list">
+                    {{#each aiSummary.strategicSuggestions.competitorKeywords}}
+                        <li class="keyword-item">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+
+        <h3>Prioritized Quick Wins</h3>
+        <p style="margin-top: -10px; margin-bottom: 15px;">These are the easiest fixes that could have the highest impact on your site's performance.</p>
+        {{#each aiSummary.strategicSuggestions.quickWins}}
+        <div class="quick-win">
+            <span class="quick-win-title">{{this.title}}</span>
+            <div class="quick-win-tags">
+                <span class="impact impact-High">Impact: {{this.impact}}</span>
+                <span class="impact impact-Low" style="background-color: var(--status-good);">Effort: {{this.effort}}</span>
+            </div>
+        </div>
+        {{/each}}
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>Generated by Abhijeet Shinde | Page 4</p></div>
+    </div>
+
+    <div class="page">
+        <div class="page-header">
+            <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="header-title"><strong>SEO Audit Report</strong><br>Prepared for {{siteReport.url}}</div>
+        </div>
+        <h2>Technical Performance & Health</h2>
+
+        <div class="card">
+            <div class="details-list">
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwb2x5bGluZSBwb2ludHM9IjEyIDYgMTIgMTIgMTYgMTQiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">Avg. First Contentful Paint (FCP)</div>
+                        <div class="detail-description">Measures when the first content appears on screen. Goal: under 1.8 seconds.</div>
+                    </div>
+                    <div class="detail-status">
+                        <span class="status-text {{#ifCond siteReport.technical.avgFcp '<' 1800}}good{{else ifCond siteReport.technical.avgFcp '<' 2500}}warn{{else}}bad{{/ifCond}}">
+                            {{msToSeconds siteReport.technical.avgFcp}}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJtMTIgNi0yIDVoLTZ2MmI2IDYgMCAwIDAgNiA2aDJ2LTZoNnYtMmgtNnoiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">Avg. Full Page Load</div>
+                        <div class="detail-description">The total time for all page resources to load. Goal: under 3 seconds.</div>
+                    </div>
+                    <div class="detail-status">
+                        <span class="status-text {{#ifCond siteReport.technical.avgFullLoad '<' 3000}}good{{else ifCond siteReport.technical.avgFullLoad '<' 5000}}warn{{else}}bad{{/ifCond}}">
+                            {{msToSeconds siteReport.technical.avgFullLoad}}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJtMjEgMTYtNSA1LTUtNSIvPjxwYXRoIGQ9Im0xNiA0LTUtNS01IDUiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">Avg. Unused JavaScript</div>
+                        <div class="detail-description">Percentage of JS code downloaded but not used. High values indicate code bloat.</div>
+                    </div>
+                    <div class="detail-status">
+                        <span class="status-text {{#ifCond siteReport.technical.avgUnusedJsPercent '<' 30}}good{{else ifCond siteReport.technical.avgUnusedJsPercent '<' 50}}warn{{else}}bad{{/ifCond}}">
+                            {{siteReport.technical.avgUnusedJsPercent}}%
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJtMjEgMTYtNSA1LTUtNSIvPjxwYXRoIGQ9Im0xNiA0LTUtNS01IDUiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">Avg. Unused CSS</div>
+                        <div class="detail-description">Percentage of CSS code downloaded but not used on the page.</div>
+                    </div>
+                    <div class="detail-status">
+                        <span class="status-text {{#ifCond siteReport.technical.avgUnusedCssPercent '<' 20}}good{{else ifCond siteReport.technical.avgUnusedCssPercent '<' 40}}warn{{else}}bad{{/ifCond}}">
+                            {{siteReport.technical.avgUnusedCssPercent}}%
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgNEg0Yy0xLjEgMC0yIC45LTIgMnYxMWMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjZjMCAxLjEtLjkgMi0yLTJaIi8+PHBhdGggZD0ibTEyIDE2LjV2LTUuNSIvPjxsaW5lIHgxPSIxMiIgeDE9IjEyLjAxIiB5MT0iOCIgeTI9IjgiLz48L3N2Zz4=">
+                    <div class="detail-content">
+                        <div class="detail-title">JavaScript Errors</div>
+                        <div class="detail-description">Critical errors found in the browser console can break site functionality.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond siteReport.technical.pagesWithErrors.length '===' 0}}
+                            <span class="status-badge badge-good">None Found</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">{{siteReport.technical.pagesWithErrors.length}} Page(s) with Errors</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                 <div class="detail-item-row">
+                    <img class="detail-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJtOCAxOC02IDYgNjYtNi02LTYtNi02IDYtNiA2Ii8+PGxpbmUgeDE9IjYyIgeDI9IjEyIiB5MT0iNiIgeTI9IjEyIi8+PGxpbmUgeDE9IjYiIHgyPSIxMiIgeTE9IjE4IiB5Mj0iMTIiLz48bGluZSB4MT0iMTIiIHgyPSIxOCIgeTE9IjEyIiB5Mj0iNiIvPjxsaW5lIHgxPSIxMiIgeDI9IjE4IiB5MT0iMTIiIHkyPSIxOCIvPjwvc3ZnPg==">
+                    <div class="detail-content">
+                        <div class="detail-title">Gzip Compression</div>
+                        <div class="detail-description">Compresses files for faster network transfer. Should be enabled.</div>
+                    </div>
+                    <div class="detail-status">
+                        {{#ifCond siteReport.technical.pagesWithGzip '===' siteReport.totalPgsCrawled}}
+                            <span class="status-badge badge-good">Enabled</span>
+                        {{else}}
+                            <span class="status-badge badge-bad">Not Fully Enabled</span>
+                        {{/ifCond}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>Generated by Abhijeet Shinde | Page 5</p></div>
+    </div>
+    
+    <div class="page">
+        <div class="page-header">
+            <img class="logo" src="data:image/png;base64,...(your logo)..." alt="Agency Logo">
+            <div class="header-title"><strong>SEO Audit Report</strong><br>Prepared for {{siteReport.url}}</div>
+        </div>
+        <h2>Recommendations & Best Practices</h2>
+        
+        {{> best-practices}}
+
+        {{> tech-stack}}
+
+        <div class="content-spacer"></div>
+        <div class="footer"><p>Generated by Abhijeet Shinde | Page 6</p></div>
+    </div>
+
+    <script>
+    // Chart.js script for the overall score donut chart
+    const score = {{scores.overallScore}};
+    let scoreColor;
+
+    // New logic to determine the color based on the score
+    if (score >= 85) {
+        scoreColor = '#16a34a'; // Green for 85-100
+    } else if (score >= 70) {
+        scoreColor = '#f59e0b'; // Yellow for 70-84
+    } else if (score >= 50) {
+        scoreColor = '#f97316'; // Orange for 50-69
+    } else {
+        scoreColor = '#dc2626'; // Red for below 50
+    }
+
+    const ctx = document.getElementById('seoScoreChart').getContext('2d');
+    const seoScoreChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [score, 100 - score],
+                backgroundColor: [scoreColor, '#e2e8f0'], // Uses the dynamically set scoreColor
+                borderWidth: 0,
+                borderRadius: 5,
+            }]
+        },
+            options: {
+                responsive: true,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                animation: {
+                    animateRotate: true
+                }
+            }
+        });
+    </script>
+</body>
+</html>

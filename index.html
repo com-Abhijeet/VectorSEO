@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VectorSEO Audit Tool</title>
+    <style>
+        :root {
+            --brand-color: #4f46e5; --brand-color-light: #e0e7ff; --text-dark: #111827; 
+            --text-light: #4b5563; --border-color: #d1d5db; --background-light: #f9fafb;
+            --terminal-bg: #1f2937; --terminal-text: #d1d5db; --status-good: #16a34a;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--background-light); color: var(--text-dark); margin: 0; height: 100vh; overflow: hidden; }
+        .app-layout { display: grid; grid-template-columns: 350px 1fr; height: 100vh; }
+        .controls-panel { background-color: white; padding: 30px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .header { margin-bottom: 40px; }
+        h1 { color: var(--brand-color); margin: 0 0 5px 0; font-size: 24px; }
+        p { color: var(--text-light); margin: 0; font-size: 14px; }
+        label { font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; }
+        input[type="url"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; }
+        .form-group { margin-bottom: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+        #submit-btn { width: 100%; padding: 12px 20px; border: none; background-color: var(--brand-color); color: white; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; margin-top: auto; }
+        #submit-btn:hover { background-color: #4338ca; }
+        #submit-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        .terminal-panel { padding: 30px; display: flex; flex-direction: column; height: 100vh; }
+        #progress-bar-container { width: 100%; height: 8px; background-color: var(--border-color); border-radius: 4px; margin-bottom: 15px; overflow: hidden; display: none; }
+        #progress-bar { width: 0%; height: 100%; background-color: var(--brand-color); transition: width 0.3s ease-in-out; }
+        #status-log { flex-grow: 1; padding: 15px; background-color: var(--terminal-bg); color: var(--terminal-text); border-radius: 6px; font-family: monospace; text-align: left; white-space: pre-wrap; overflow-y: auto; font-size: 12px; }
+        #result-area { margin-top: 20px; padding: 20px; background-color: var(--brand-color-light); border: 1px solid #c7d2fe; border-radius: 6px; text-align: center; display: none; }
+        #result-area h3 { margin: 0 0 10px 0; color: var(--text-dark); }
+        #open-pdf-btn { width: 100%; padding: 12px 20px; border: none; background-color: var(--status-good);color: white; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; margin-top: auto; }
+        #open-pdf-btn:hover { background-color: #15803d; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <div class="controls-panel">
+            <div class="header">
+                <h1>VectorSEO</h1>
+                <p>AI-Powered Audit Tool</p>
+            </div>
+            
+            <form id="audit-form">
+                <div class="form-group">
+                    <label for="url-input">Target URL</label>
+                    <input type="url" id="url-input" placeholder="https://example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="limit-input">Crawl Limit (Pages)</label>
+                    <input type="number" id="limit-input" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="send-email-checkbox">
+                        <label for="send-email-checkbox" style="margin-bottom: 0;">Auto-send Email to Contact</label>
+                    </div>
+                </div>
+            </form>
+
+            <button type="submit" id="submit-btn" form="audit-form">Start Audit</button>
+        </div>
+
+        <div class="terminal-panel">
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="status-log">Welcome to VectorSEO. Enter a URL to begin...</div>
+             <div id="result-area">
+                <h3>Audit Complete!</h3>
+                <p id="result-path" style="margin-bottom: 15px;"></p>
+                <button id="open-pdf-btn">Open PDF Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('audit-form');
+        const urlInput = document.getElementById('url-input');
+        const limitInput = document.getElementById('limit-input');
+        const sendEmailCheckbox = document.getElementById('send-email-checkbox');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusLog = document.getElementById('status-log');
+        const resultArea = document.getElementById('result-area');
+        const resultPathEl = document.getElementById('result-path');
+        const openPdfBtn = document.getElementById('open-pdf-btn');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+
+        let currentPdfPath = '';
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const auditOptions = {
+                url: urlInput.value,
+                limit: parseInt(limitInput.value, 10),
+                provider: 'ollama',
+                send: sendEmailCheckbox.checked
+            };
+            if (!auditOptions.url) return;
+
+            statusLog.textContent = `🚀 Starting audit for: ${auditOptions.url}`;
+            progressBar.style.width = '5%';
+            progressBarContainer.style.display = 'block';
+            resultArea.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Auditing...';
+            
+            window.electronAPI.runAudit(auditOptions);
+        });
+
+        const appendToLog = (message) => {
+            statusLog.textContent += '\n' + message;
+            statusLog.scrollTop = statusLog.scrollHeight;
+        };
+
+        window.electronAPI.onAuditProgress((update) => {
+            appendToLog(update.message);
+            progressBar.style.width = `${update.percent}%`;
+        });
+
+        window.electronAPI.onAuditComplete((result) => {
+            progressBar.style.width = '100%';
+            const successMessage = `🎉 Success! Report is ready.`;
+            appendToLog(`\n${successMessage}`);
+            if (result.emailSentTo) {
+                appendToLog(`📧 Report sent to: ${result.emailSentTo}`);
+            } else if (result.emailError) {
+                appendToLog(`⚠️ Email Error: ${result.emailError}`);
+            }
+
+            currentPdfPath = result.pdfPath;
+            resultPathEl.textContent = `Report saved to: ${result.pdfPath}`;
+            resultArea.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Start Audit';
+        });
+
+        window.electronAPI.onAuditError((error) => {
+            appendToLog(`\n❌ Error: ${error}`);
+            progressBarContainer.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Start Audit';
+        });
+
+        openPdfBtn.addEventListener('click', () => {
+            if (currentPdfPath) {
+                window.electronAPI.openPdf(currentPdfPath);
+            }
+        });
+    </script>
+</body>
+</html>
