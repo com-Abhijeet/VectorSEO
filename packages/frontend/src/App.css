@@ -34,6 +34,7 @@ body {
 .sidebar {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   width: 260px;
   background-color: white;
   border-right: 1px solid var(--border-color);
@@ -89,6 +90,34 @@ body {
   background-color: var(--brand-color-light);
   color: var(--brand-color);
   font-weight: 600;
+}
+
+.sidebar__footer {
+  padding: 20px 10px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.sidebar__footer p {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.sidebar__footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.sidebar__footer-link:hover {
+  color: var(--brand-color);
+  text-decoration: underline;
 }
 
 /* In App.css */
@@ -680,6 +709,28 @@ input[type="url"], input[type="number"] {
   grid-template-columns: 1fr;
 }
 
+.memory-form {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+}
+
+.form-input {
+  flex-grow: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--brand-color);
+  box-shadow: 0 0 0 2px var(--brand-color-light);
+}
+
+
+/* --- Preferences List --- */
 .memory-list {
   list-style: none;
   padding: 0;
@@ -690,10 +741,192 @@ input[type="url"], input[type="number"] {
 }
 
 .memory-list__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
   background-color: var(--background-light);
   padding: 12px 15px;
   border-radius: 6px;
   font-size: 14px;
   color: var(--text-dark);
   border-left: 3px solid var(--brand-color);
+}
+
+.memory-list__item span {
+  flex-grow: 1;
+  line-height: 1.5;
+}
+
+.memory-list__delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af; /* Muted gray */
+  padding: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.memory-list__delete-btn:hover {
+  color: #ef4444; /* Danger Red */
+  background-color: #fee2e2; /* Light Red BG */
+}
+
+/* --- Generic Button Styles (Reused) --- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  color: var(--text-dark);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.button:hover {
+  background-color: var(--background-light);
+}
+
+.button--primary {
+  background-color: var(--brand-color);
+  border-color: var(--brand-color);
+  color: #fff;
+}
+
+.button--primary:hover {
+  background-color: #4338ca;
+  border-color: #4338ca;
+}
+
+/* packages/frontend/src/pages/UpdatePage.css */
+
+.update-page {
+  padding: 40px;
+  background-color: var(--background-light);
+  height: 100%;
+}
+
+.update-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--brand-color);
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.update-page__header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: var(--text-dark);
+}
+
+.update-card {
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 25px;
+  max-width: 600px;
+  margin: 40px auto;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.update-card__version {
+  font-size: 16px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.update-card__version strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.update-card__status {
+  background-color: var(--background-light);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.update-card__status p {
+  margin: 0 0 15px 0;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-dark);
+}
+
+.update-card__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: var(--border-color);
+  border-radius: 5px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress-bar__inner {
+  height: 100%;
+  background-color: var(--brand-color);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+/* --- Generic Button Styles --- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  color: var(--text-dark);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.button:hover {
+  background-color: var(--background-light);
+}
+
+.button--primary {
+  background-color: var(--brand-color);
+  border-color: var(--brand-color);
+  color: #fff;
+}
+
+.button--primary:hover {
+  background-color: #4338ca;
+  border-color: #4338ca;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }

@@ -1,5 +1,3 @@
-// packages/backend/src/core/aiProviders.ts
-
 import { loadConfig } from "../../config";
 import { generateGoogleCompletion } from "../providers/google";
 import { generateOllamaCompletion } from "../providers/ollama";

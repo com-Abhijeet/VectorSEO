@@ -1,35 +1,18 @@
-// packages/backend/src/core/chat/chat_handler.ts
-
 import { generateOllamaTextCompletion } from "../providers/ollama";
-import { generateChatCompletion } from "./aiProviders"; // <-- Import your new function
+import { generateChatCompletion } from "./aiProviders";
 import { createChatPrompt, createTitlePrompt } from "./prompt";
 import { readMemory, writeMemory } from "../memory";
 
-export const handleSendMessage = async (history: any[]) => {
-  let currentMemory = readMemory();
+export const handleSendMessage = async (history: any) => {
+  // 1. Read the current memory from disk
+  const currentMemory = readMemory();
+
+  // 2. Create the prompt with the current memory and history
   const prompt = createChatPrompt(history, currentMemory);
+
+  // 3. Get the AI's response and return it directly
   const aiResponse = await generateChatCompletion(prompt);
-
-  if (aiResponse.memoryOperation && aiResponse.memoryOperation.preference) {
-    const { action, preference } = aiResponse.memoryOperation;
-    console.log(`Performing memory operation: ${action} -> "${preference}"`);
-
-    if (action === "add" && !currentMemory.preferences.includes(preference)) {
-      currentMemory.preferences.push(preference);
-    } else if (action === "remove") {
-      const keyword = preference.toLowerCase();
-
-      // ✅ CORRECTED LOGIC:
-      // Keep a preference 'p' if the long 'keyword' from the AI
-      // does NOT include the text of 'p'.
-      currentMemory.preferences = currentMemory.preferences.filter(
-        (p) => !keyword.includes(p.toLowerCase())
-      );
-    }
-
-    writeMemory(currentMemory);
-  }
-
+  console.log(aiResponse);
   return aiResponse;
 };
 
@@ -44,7 +27,7 @@ export const handleGenerateTitle = async (
     const keys = Object.keys(response);
     const values = Object.values(response);
 
-    // ✅ NEW: Check if the first key is a sensible title
+    // Check if the first key is a sensible title
     if (keys.length > 0 && typeof keys[0] === "string" && keys[0].length > 1) {
       return keys[0].trim().replace(/"/g, "");
     }

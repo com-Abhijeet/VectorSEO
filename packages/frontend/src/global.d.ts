@@ -64,6 +64,14 @@ interface Window {
     chatSendMessage: (history: any[]) => Promise<any>;
     chatGenerateTitle: (firstMessage: string) => Promise<string>;
     getMemory: () => Promise<UserMemory>;
+    addPreference: (preference: string) => Promise<UserMemory>;
+    removePreference: (preference: string) => Promise<UserMemory>;
+    getAppVersion: () => Promise<string>;
+    onUpdaterStatus: (callback: (status: IpcStatusUpdate) => void) => void;
+    checkUpdates: () => void;
+    installUpdate: () => void;
+    removeUpdaterListeners: () => void;
+    openExternalLink: (url: string) => void;
     // Add a function to remove listeners for cleanup
     removeAllListeners: () => void;
   };

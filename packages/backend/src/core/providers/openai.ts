@@ -1,4 +1,3 @@
-// packages/backend/src/core/providers/openai.ts
 import axios from "axios";
 import { loadConfig } from "../../config";
 const config = loadConfig();

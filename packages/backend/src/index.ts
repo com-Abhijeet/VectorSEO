@@ -3,7 +3,7 @@ import chalk from "chalk";
 import ora from "ora";
 import figlet from "figlet";
 import boxen from "boxen";
-import { runAudit, ProgressUpdate } from "./core/auditRunner"; // Import the new runner and type
+import { runAudit, ProgressUpdate } from "./core/auditRunner";
 import dotenv from "dotenv";
 dotenv.config();
 

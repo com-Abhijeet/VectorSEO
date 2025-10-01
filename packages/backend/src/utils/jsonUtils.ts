@@ -1,4 +1,3 @@
-// packages/backend/src/core/utils/jsonUtils.ts
 
 /**
  * Finds the first potential JSON object within a string and attempts to parse it.

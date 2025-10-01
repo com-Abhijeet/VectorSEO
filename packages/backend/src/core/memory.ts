@@ -1,5 +1,3 @@
-// packages/backend/src/core/memory.ts
-
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
@@ -48,4 +46,33 @@ export const writeMemory = (memory: UserMemory): void => {
   } catch (error) {
     console.error("Error writing to memory file.", error);
   }
+};
+
+/**
+ * Adds a new preference to the memory file.
+ * @param preference The new preference string to add.
+ * @returns The updated memory object.
+ */
+export const addPreference = (preference: string): UserMemory => {
+  const currentMemory = readMemory();
+  // Avoid adding duplicates
+  if (!currentMemory.preferences.includes(preference)) {
+    currentMemory.preferences.push(preference);
+    writeMemory(currentMemory);
+  }
+  return currentMemory;
+};
+
+/**
+ * Removes a specific preference from the memory file.
+ * @param preference The exact preference string to remove.
+ * @returns The updated memory object.
+ */
+export const removePreference = (preference: string): UserMemory => {
+  let currentMemory = readMemory();
+  currentMemory.preferences = currentMemory.preferences.filter(
+    (p) => p !== preference
+  );
+  writeMemory(currentMemory);
+  return currentMemory;
 };

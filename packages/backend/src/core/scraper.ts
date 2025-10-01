@@ -1,5 +1,3 @@
-// src/core/scraper.ts
-
 import puppeteer, { Browser } from "puppeteer";
 import * as cheerio from "cheerio";
 

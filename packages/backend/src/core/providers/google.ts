@@ -1,4 +1,3 @@
-// packages/backend/src/core/providers/google.ts
 import axios from "axios";
 import { loadConfig } from "../../config";
 const config = loadConfig();

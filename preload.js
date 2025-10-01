@@ -16,6 +16,21 @@ contextBridge.exposeInMainWorld("electronAPI", {
   chatGenerateTitle: (firstMessage) =>
     ipcRenderer.invoke("chat:generateTitle", firstMessage),
   getMemory: () => ipcRenderer.invoke("memory:get"),
+  addPreference: (preference) => ipcRenderer.invoke("memory:add", preference),
+  removePreference: (preference) =>
+    ipcRenderer.invoke("memory:remove", preference),
+
+  getAppVersion: () => ipcRenderer.invoke("updater:get-version"),
+  onUpdaterStatus: (callback) =>
+    ipcRenderer.on("updater:status", (_event, data) => callback(data)),
+  checkUpdates: () => ipcRenderer.send("updater:check"),
+  installUpdate: () => ipcRenderer.send("updater:install"),
+
+  openExternalLink: (url) => ipcRenderer.send("shell:openExternal", url),
+
+  removeUpdaterListeners: () => {
+    ipcRenderer.removeAllListeners("updater:status");
+  },
 
   removeAllListeners: () => {
     ipcRenderer.removeAllListeners("run-audit");
@@ -24,5 +39,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.removeAllListeners("audit-error");
     ipcRenderer.removeAllListeners("save-config");
     ipcRenderer.removeAllListeners("get-config");
+    // ipcRenderer.removeAllListeners("updater:status");
   },
 });

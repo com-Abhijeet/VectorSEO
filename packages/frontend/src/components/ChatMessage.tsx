@@ -1,14 +1,22 @@
 // packages/frontend/src/components/ChatMessage.tsx
-import React, { useState } from "react"; // 1. Import useState
+
+import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { okaidia } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { type Message } from "../hooks/useChatHistory";
-// 2. Import new icons
 import { Bot, User, Copy, Check } from "lucide-react";
 
 export const ChatMessage = ({ message }: { message: Message }) => {
   const isUser = message.role === "user";
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Handler for the new copy button
+  const handleCopy = (codeToCopy: string) => {
+    navigator.clipboard.writeText(codeToCopy);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   return (
     <div className={`chat-message chat-message--${message.role}`}>
@@ -19,48 +27,30 @@ export const ChatMessage = ({ message }: { message: Message }) => {
         {isUser ? (
           <p>{message.content}</p>
         ) : (
-          <ReactMarkdown
-            components={{
-              code({ node, className, children, ...props }) {
-                // 3. Add state and handler for the copy button
-                const [isCopied, setIsCopied] = useState(false);
-                const handleCopy = () => {
-                  navigator.clipboard.writeText(String(children));
-                  setIsCopied(true);
-                  setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
-                };
-                const { ref, ...refProps } = props;
+          <>
+            {/* 1. Render the main message with Markdown */}
+            <ReactMarkdown>{message.response?.message || ""}</ReactMarkdown>
 
-                const match = /language-(\w+)/.exec(className || "");
-                return match ? (
-                  // 4. Wrap SyntaxHighlighter in a div for positioning the button
-                  <div className="code-block">
-                    <button
-                      className="code-block__copy-btn"
-                      onClick={handleCopy}
-                    >
-                      {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                      {isCopied ? "Copied!" : "Copy"}
-                    </button>
-                    <SyntaxHighlighter
-                      style={okaidia as any}
-                      language={match[1]}
-                      PreTag="div"
-                      {...refProps}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                  </div>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                );
-              },
-            }}
-          >
-            {message.response?.message || ""}
-          </ReactMarkdown>
+            {/* 2. Check for and render the separate code object */}
+            {message.response?.code?.snippet && (
+              <div className="code-block">
+                <button
+                  className="code-block__copy-btn"
+                  onClick={() => handleCopy(message.response!.code!.snippet)}
+                >
+                  {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                  {isCopied ? "Copied!" : "Copy"}
+                </button>
+                <SyntaxHighlighter
+                  style={okaidia as any}
+                  language={message.response.code.language}
+                  PreTag="div"
+                >
+                  {String(message.response.code.snippet).replace(/\n$/, "")}
+                </SyntaxHighlighter>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

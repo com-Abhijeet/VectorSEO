@@ -14,7 +14,13 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const { loadConfig } = require("./packages/backend/dist/config");
 const { runAudit } = require("./packages/backend/dist/core/auditRunner");
-const { readMemory } = require("./packages/backend/dist/core/memory");
+const {
+  readMemory,
+  addPreference,
+  removePreference,
+} = require("./packages/backend/dist/core/memory");
+
+const { initUpdater } = require("./updater");
 
 const {
   handleSendMessage,
@@ -23,8 +29,10 @@ const {
 
 let config = loadConfig();
 
+let mainWindow;
+
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -50,6 +58,9 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
+
+  initUpdater(mainWindow);
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -118,4 +129,19 @@ ipcMain.handle("chat:generateTitle", (event, firstMessage) => {
 
 ipcMain.handle("memory:get", () => {
   return readMemory();
+});
+
+ipcMain.handle("memory:add", (event, preference) => {
+  return addPreference(preference);
+});
+ipcMain.handle("memory:remove", (event, preference) => {
+  return removePreference(preference);
+});
+
+ipcMain.on("shell:openExternal", (event, url) => {
+  // Ensure the URL is a safe http/https protocol before opening
+  if (url.startsWith("http:") || url.startsWith("https:")) {
+    console.log(":Opening LINK");
+    shell.openExternal(url);
+  }
 });

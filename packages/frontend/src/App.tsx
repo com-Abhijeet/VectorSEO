@@ -8,6 +8,7 @@ import { Settings } from "./pages/Settings";
 import { ChatPage } from "./pages/ChatPage";
 import "./App.css";
 import { MemoryPage } from "./pages/MemoryPage";
+import { UpdatePage } from "./pages/UpdatePage";
 
 function App() {
   return (
@@ -18,9 +19,12 @@ function App() {
           <Routes>
             <Route path="/" element={<AuditPage />} />
             <Route path="/settings" element={<Settings />} />
+
             {/* 2. Add the new route for the chat page */}
             <Route path="/chat" element={<ChatPage />} />
+
             <Route path="/memory" element={<MemoryPage />} />
+            <Route path="/updates" element={<UpdatePage />} />
           </Routes>
         </main>
       </div>

@@ -6,16 +6,24 @@ import {
   Settings as SettingsIcon,
   BrainCircuit,
   BookUser,
+  ArrowDownToLine,
+  Github,
 } from "lucide-react";
 
 export function Sidebar() {
+  const handleLinkClick = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
+    window.electronAPI.openExternalLink(url);
+  };
   return (
     <nav className="sidebar">
-      <div className="sidebar__header">
-        <h1>VectorSEO</h1>
-        <p>AI-Powered Audit Tool</p>
-      </div>
       <ul className="sidebar__nav">
+        <li>
+          <div className="sidebar__header">
+            <h1>VectorSEO</h1>
+            <p>AI-Powered Audit Tool</p>
+          </div>
+        </li>
         <li>
           <NavLink to="/" className="sidebar__nav-link" end>
             <Search size={18} />
@@ -41,7 +49,26 @@ export function Sidebar() {
             <span>AI Memory</span>
           </NavLink>
         </li>
+        <li>
+          <NavLink to="/updates" className="sidebar__nav-link">
+            <ArrowDownToLine size={18} />
+            <span>Updates</span>
+          </NavLink>
+        </li>
       </ul>
+      <footer className="sidebar__footer">
+        <p>Developed by Abhijeet Shinde</p>
+        <a
+          href="https://github.com/com-Abhijeet/VectorSEO"
+          onClick={(e) =>
+            handleLinkClick(e, "https://github.com/com-Abhijeet/VectorSEO")
+          }
+          className="sidebar__footer-link"
+        >
+          <Github size={16} />
+          View on GitHub
+        </a>
+      </footer>
     </nav>
   );
 }
