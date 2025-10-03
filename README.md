@@ -6,25 +6,24 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 
 ---
 
-
-
 ## ✨ Key Features
 
-* **Comprehensive SEO Audit:** Crawl any website and get a detailed analysis of critical on-page and technical SEO factors, including meta tags, headings, image alt text, page speed (FCP), and more.
+- **Comprehensive SEO Audit:** Crawl any website and get a detailed analysis of critical on-page and technical SEO factors, including meta tags, headings, image alt text, page speed (FCP), and more.
 
-* **Multi-Provider AI Support:** Choose how you want to power your analysis. VectorSEO seamlessly integrates with:
-    * **Local Models** via Ollama for private, offline processing.
-    * **Cloud APIs** like OpenAI (GPT models) and Google (Gemini models) for state-of-the-art analysis.
+- **Multi-Provider AI Support:** Choose how you want to power your analysis. VectorSEO seamlessly integrates with:
 
-* **Interactive SEO Brain:** Go beyond the audit with a built-in chat agent. Ask complex questions about SEO, web development, or your specific audit results and get expert-level answers.
+  - **Local Models** via Ollama for private, offline processing.
+  - **Cloud APIs** like OpenAI (GPT models) and Google (Gemini models) for state-of-the-art analysis.
 
-* **Personalized AI Memory:** Teach the AI your preferences! You can conversationally ask it to remember your name, your preferred coding language, or how you like your explanations. It stores these preferences and applies them to future conversations.
+- **Interactive SEO Brain:** Go beyond the audit with a built-in chat agent. Ask complex questions about SEO, web development, or your specific audit results and get expert-level answers.
 
-* **Professional PDF Reports:** Generate clean, easy-to-read PDF summaries of your SEO audits, perfect for sharing with clients or team members.
+- **Personalized AI Memory:** Teach the AI your preferences! You can conversationally ask it to remember your name, your preferred coding language, or how you like your explanations. It stores these preferences and applies them to future conversations.
 
-* **Modern Desktop Experience:** Built with Electron and React, VectorSEO provides a fast, native-feeling experience on Windows, macOS, and Linux.
+- **Professional PDF Reports:** Generate clean, easy-to-read PDF summaries of your SEO audits, perfect for sharing with clients or team members.
 
-* **Auto-Updates:** The application automatically checks for new versions and notifies you when an update is ready, ensuring you always have the latest features and fixes.
+- **Modern Desktop Experience:** Built with Electron and React, VectorSEO provides a fast, native-feeling experience on Windows, macOS, and Linux.
+
+- **Auto-Updates:** The application automatically checks for new versions and notifies you when an update is ready, ensuring you always have the latest features and fixes.
 
 ---
 
@@ -32,7 +31,7 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 
 <p align="center">
   <img width="48%" height="1020" alt="image" src="https://github.com/user-attachments/assets/28a6c2f5-3249-48a5-9a39-7d031b892d83" />
-  
+  <img width="48%" height="1020" alt="logo" src="/build/fullLogo.png">
 
   </p>
 
@@ -40,12 +39,12 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 
 ## 🛠️ Technology Stack
 
-* **Framework:** Electron
-* **Frontend:** React, TypeScript, Vite, React Router
-* **UI Components:** Lucide React (Icons)
-* **Backend:** Node.js
-* **AI Integration:** Ollama, OpenAI API, Google Gemini API
-* **Packaging & Updates:** electron-builder, electron-updater
+- **Framework:** Electron
+- **Frontend:** React, TypeScript, Vite, React Router
+- **UI Components:** Lucide React (Icons)
+- **Backend:** Node.js
+- **AI Integration:** Ollama, OpenAI API, Google Gemini API
+- **Packaging & Updates:** electron-builder, electron-updater
 
 ---
 
