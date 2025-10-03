@@ -6,12 +6,19 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 
 ---
 
+## ⬇️ Download
+
+[**Download the Latest Version for Windows**](https://github.com/com-Abhijeet/VectorSEO/releases/latest/download/VectorSEO-Setup-1.0.0.exe)
+
+_Note: You may need to update the version number in the link for future releases._
+
+---
+
 ## ✨ Key Features
 
 - **Comprehensive SEO Audit:** Crawl any website and get a detailed analysis of critical on-page and technical SEO factors, including meta tags, headings, image alt text, page speed (FCP), and more.
 
 - **Multi-Provider AI Support:** Choose how you want to power your analysis. VectorSEO seamlessly integrates with:
-
   - **Local Models** via Ollama for private, offline processing.
   - **Cloud APIs** like OpenAI (GPT models) and Google (Gemini models) for state-of-the-art analysis.
 
@@ -32,8 +39,7 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 <p align="center">
   <img width="48%" height="1020" alt="image" src="https://github.com/user-attachments/assets/28a6c2f5-3249-48a5-9a39-7d031b892d83" />
   <img width="48%" height="1020" alt="logo" src="/build/fullLogo.png">
-
-  </p>
+</p>
 
 ---
 
