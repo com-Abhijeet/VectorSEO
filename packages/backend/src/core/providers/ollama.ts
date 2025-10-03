@@ -28,14 +28,14 @@ export const generateOllamaCompletion = async (
       },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 20000, // ✅ ADD THIS: Abort request after 20 seconds
+        timeout: 60000, //  Abort request after 20 seconds
       }
     );
 
     const rawResponse = response.data?.response;
 
     if (typeof rawResponse === "object" && rawResponse !== null) {
-      return rawResponse; // It's already a perfect object.
+      return rawResponse; 
     }
 
     if (typeof rawResponse === "string") {

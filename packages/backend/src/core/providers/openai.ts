@@ -22,7 +22,6 @@ export const generateOpenAICompletion = async (
       {
         model: config.openai.model,
         messages: [{ role: "user", content: prompt }],
-        // Request JSON output directly from the API
         response_format: { type: "json_object" },
       },
       {

@@ -22,7 +22,7 @@ export const generateGoogleCompletion = async (
       url,
       {
         contents: [{ parts: [{ text: prompt }] }],
-        // Request JSON output directly from the API
+
         generationConfig: {
           response_mime_type: "application/json",
         },

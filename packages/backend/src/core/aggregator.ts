@@ -1,14 +1,14 @@
 import { SeoAnalysis } from "./analyzer";
 import { TechnicalData } from "./technicalScraper";
 
-// This is the combined data structure we get for each page
+
 export interface CombinedAnalysis {
   onPage: SeoAnalysis;
   tech: TechnicalData;
   html: string | null;
 }
 
-// New interface for the aggregated technical summary
+
 export interface TechnicalSummary {
   avgFcp: number;
   avgFullLoad: number;
@@ -18,7 +18,7 @@ export interface TechnicalSummary {
   pagesWithGzip: number; // New property
 }
 
-// The main report interface is now much more comprehensive
+
 export interface SiteAnalysisReport {
   url: string;
   totalPgsCrawled: number;
@@ -80,7 +80,7 @@ export const aggregateAnalyses = (
       pagesWithErrors: [],
       avgUnusedJsPercent: 0,
       avgUnusedCssPercent: 0,
-      pagesWithGzip: 0, // Initialize new property
+      pagesWithGzip: 0, 
     },
   };
 
@@ -96,7 +96,7 @@ export const aggregateAnalyses = (
   for (const analysis of analyses) {
     const { onPage, tech } = analysis;
 
-    // --- On-Page Aggregation ---
+
     if (onPage.title.status === "Too Short")
       report.overview.pagesWithShortTitles.push(onPage.url);
     if (onPage.title.status === "Too Long")
@@ -121,12 +121,11 @@ export const aggregateAnalyses = (
       onPage.structuredData.types.forEach((type) => allSchemaTypes.add(type));
     }
 
-    // Add GZip check from onPage analysis
+
     if (onPage.tech.isGzipEnabled) {
       report.technical.pagesWithGzip++;
     }
 
-    // --- Technical Aggregation ---
     if (tech.performance) {
       totalFcp += tech.performance.fcp;
       totalFullLoad += tech.performance.fullLoad;

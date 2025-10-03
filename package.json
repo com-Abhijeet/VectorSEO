@@ -6,11 +6,16 @@
   "author": "Abhijeet Shinde",
   "main": "main.js",
   "scripts": {
-    "//--- PRODUCTION ---//": "",
-    "start": "cross-env NODE_ENV=production electron .",
-    "build": "electron-builder",
+    "//--- BUILDING & PACKAGING ---//": "",
+    "build:backend": "npm run build --workspace=packages/backend",
+    "build:frontend": "npm run build --workspace=packages/frontend",
+    "build:all": "npm run build:backend && npm run build:frontend",
+    "build": "npm run build:all && electron-builder",
+    "package": "npm run build -- --publish always",
+    
     "//--- DEVELOPMENT ---//": "",
-    "predev": "npm run build --workspace=packages/backend",
+    "start": "cross-env NODE_ENV=production electron .",
+    "predev": "npm run build:backend",
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
     "dev:electron": "cross-env NODE_ENV=development electron .",
     "dev:frontend": "npm run dev --workspace=packages/frontend"
@@ -44,12 +49,23 @@
   "build": {
     "appId": "com.vectorseo.app",
     "productName": "VectorSEO",
+
+    "win": {
+    "target": "nsis",
+    "icon": "build/icon.ico" 
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    
     "files": [
       "main.js",
       "preload.js",
-      "packages/frontend/**/*",
+      "updater.js",
       "packages/backend/dist/**/*",
-      "packages/backend/package.json"
+      "packages/backend/package.json",
+      "packages/frontend/dist/**/*"
     ],
     "asarUnpack": [
       "packages/backend/dist/**/*",
@@ -57,12 +73,6 @@
     ],
     "directories": {
       "output": "dist"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "mac": {
-      "target": "dmg"
     },
     "publish": {
       "provider": "github",

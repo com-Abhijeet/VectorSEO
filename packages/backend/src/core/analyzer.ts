@@ -1,7 +1,6 @@
 import * as cheerio from "cheerio";
 import { SiteAnalysisReport } from "./aggregator";
 
-// --- INTERFACES (Updated with new sections) ---
 
 export interface TitleAnalysis {
   text: string;

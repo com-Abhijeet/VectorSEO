@@ -45,7 +45,7 @@ program
           provider: options.provider,
           limit: parseInt(options.limit, 10),
           send: options.send,
-          onProgress, // Pass the callback to the runner
+          onProgress, 
         });
 
         spinner.succeed(chalk.green.bold("🎉 Audit Complete!"));

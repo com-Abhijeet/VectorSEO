@@ -1,4 +1,4 @@
-import { UserMemory } from "../memory"; // <-- Import the new type
+import { UserMemory } from "../memory";
 
 // The structure for a single message in the chat history
 interface ChatMessage {

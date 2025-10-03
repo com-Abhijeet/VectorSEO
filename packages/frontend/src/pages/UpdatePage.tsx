@@ -1,5 +1,5 @@
 // packages/frontend/src/pages/UpdatePage.tsx
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowDownToLine, CheckCircle, RefreshCw } from "lucide-react";
 
 export const UpdatePage = () => {

@@ -4,13 +4,14 @@ const path = require("path");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const os = require("os");
+const pkg = require("./package.json");
 
 const configDir = path.join(os.homedir(), ".config", "vectorseo");
 const configPath = path.join(configDir, "config.json");
 
 dotenv.config({ path: path.join(__dirname, "packages/backend/.env") });
 console.log("ELECTRON", process.env.NODE_ENV);
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = !app.isPackaged;
 
 const { loadConfig } = require("./packages/backend/dist/config");
 const { runAudit } = require("./packages/backend/dist/core/auditRunner");
@@ -31,38 +32,62 @@ let config = loadConfig();
 
 let mainWindow;
 
-function createWindow() {
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 400,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    center: true,
+  });
+  splashWindow.loadFile(path.join(__dirname, "splash.html"));
+}
+
+// 4. Main Application Window
+function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false, // Create the window hidden
+    title: "Vector SEO",
+    icon: path.join(__dirname, "build/icon.png"),
     webPreferences: {
-      // Use a preload script to securely expose backend functionality
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  // mainWindow.removeMenu();
+  mainWindow.removeMenu();
 
   if (isDev) {
-    // ✅ Correct: Load the URL of the running Vite server
     mainWindow.loadURL("http://localhost:5173");
   } else {
-    // This is for your production build, which is correct
     mainWindow.loadFile(
-      path.join(__dirname, "../../packages/frontend/dist/index.html")
+      path.join(__dirname, "packages/frontend/dist/index.html")
     );
   }
+
+  // When the main window is ready to show, close splash and show it
+  mainWindow.once("ready-to-show", () => {
+    if (splashWindow) {
+      splashWindow.close();
+    }
+    mainWindow.show();
+    // Initialize the updater now that the main window is fully ready
+    initUpdater(mainWindow);
+  });
 }
 
 app.whenReady().then(() => {
-  createWindow();
-
-  initUpdater(mainWindow);
+  createSplashWindow();
+  createMainWindow();
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow();
+    }
   });
 });
 

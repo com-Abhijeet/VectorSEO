@@ -7,14 +7,14 @@ import { generateOpenAICompletion } from "./providers/openai";
 
 let config = loadConfig();
 
-// This is the complete data object needed for the report generator
+
 export interface CompleteReportData {
   siteReport: SiteAnalysisReport;
   scores: Scores;
   aiSummary: AIQualitativeSummary;
 }
 
-// Interface for what the AI is responsible for generating
+
 export interface AIQualitativeSummary {
   executiveSummary: string;
   keyFindings: Array<{
@@ -31,7 +31,7 @@ export interface AIQualitativeSummary {
   };
 }
 
-// The prompt is updated to include the homepage HTML
+
 const createSiteWideSeoPrompt = (
   report: SiteAnalysisReport,
   scores: Scores,
@@ -40,7 +40,7 @@ const createSiteWideSeoPrompt = (
   const reportJson = JSON.stringify(report, null, 2);
   const scoresJson = JSON.stringify(scores, null, 2);
 
-  // Truncate HTML if it's excessively long to avoid overly large prompts
+  
   const truncatedHtml =
     homepageHtml.length > 15000
       ? homepageHtml.substring(0, 15000) + "..."
@@ -168,13 +168,13 @@ export const getAISummary = async (
   scores: Scores,
   homepageHtml: string
 ): Promise<AIQualitativeSummary> => {
-  // 2. Load config inside the function to get the latest settings
+  
   const config = loadConfig();
   const prompt = createSiteWideSeoPrompt(report, scores, homepageHtml);
 
   console.log(`Routing AI request to: ${config.activeProvider}`);
 
-  // 3. Add cases for 'openai' and 'google'
+
   switch (config.activeProvider) {
     case "openai":
       return generateOpenAICompletion(prompt);

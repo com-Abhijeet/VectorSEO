@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 
-// The structure of our memory file
+// The structure of memory file
 export interface UserMemory {
   preferences: string[];
 }

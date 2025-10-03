@@ -1,5 +1,4 @@
-// updater.js
-const { app, ipcMain, Notification } = require("electron"); // 1. Import Notification
+const { app, ipcMain, Notification } = require("electron"); 
 const { autoUpdater } = require("electron-updater");
 const log = require("electron-log");
 

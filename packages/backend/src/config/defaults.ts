@@ -1,5 +1,3 @@
-// packages/backend/src/config/defaults.ts
-
 export interface Config {
   activeProvider: "ollama" | "google" | "openai";
   ollama: {
@@ -31,7 +29,6 @@ export interface Config {
   };
 }
 
-// These are the fallback settings for the application.
 export const defaultConfig: Config = {
   activeProvider: "ollama",
   ollama: {
@@ -54,9 +51,8 @@ export const defaultConfig: Config = {
       secure: false,
     },
     auth: {
-      // These should be loaded from .env in the main process, not here.
-      user: process.env.EMAIL_USER || "",
-      pass: process.env.EMAIL_PASS || "",
+      user: "",
+      pass: "",
     },
     defaults: {
       from: '"VectorSEO Report" <noreply@example.com>',

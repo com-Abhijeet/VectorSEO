@@ -30,7 +30,7 @@ export interface TechnicalData {
   jsErrors: string[];
   coverage: CodeCoverage | null;
   screenshotBase64: string | null;
-  pixelWidths: PixelWidths | null; // Added new data property
+  pixelWidths: PixelWidths | null; 
 }
 
 /**

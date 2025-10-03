@@ -1,11 +1,8 @@
-// packages/backend/src/config/index.ts
-
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { defaultConfig, Config } from "./defaults";
 
-// Define the cross-platform path for the user's config file
 const configDir = path.join(os.homedir(), ".config", "vectorseo");
 const configPath = path.join(configDir, "config.json");
 
