@@ -8,7 +8,7 @@ VectorSEO is a modern, open-source desktop application designed to help you anal
 
 ## ⬇️ Download
 
-[**Download the Latest Version for Windows**](https://github.com/com-Abhijeet/VectorSEO/releases/latest/download/VectorSEO-Setup-1.0.0.exe)
+[**Download the Latest Version for Windows**](https://github.com/com-Abhijeet/VectorSEO/releases/download/Beta/VectorSEO-Setup-0.0.1.exe)
 
 _Note: You may need to update the version number in the link for future releases._
 
